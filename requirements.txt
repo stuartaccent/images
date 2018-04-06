@@ -1,0 +1,8 @@
+# The app itself
+-e .
+
+coverage
+flake8
+mock
+psycopg2
+pyyaml
