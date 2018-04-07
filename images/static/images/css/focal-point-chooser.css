@@ -1,0 +1,27 @@
+.focal-point-container {
+    margin-bottom: 20px;
+}
+
+.focal-point-chooser {
+    position: relative;
+}
+
+.focal-point-chooser .current-focal-point-indicator {
+    transition: opacity 0.2s ease;
+    box-shadow: 1px 1px 10px 0 rgba(0, 0, 0, 1);
+    position: absolute;
+    border: 3px solid #417690;
+    opacity: 0.7;
+}
+
+.focal-point-chooser:hover .current-focal-point-indicator {
+    opacity: 0;
+}
+
+.remove-focal-point {
+    height: 35px;
+    padding: 10px 15px !important;
+    background: #79aec8;
+    line-height: 15px;
+    margin-bottom: 20px !important;
+}

@@ -9,9 +9,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from willow.image import Image as WillowImage
 
-from images.conf import get_setting
 from images.exceptions import SourceImageIOError
 from images.filter import Filter
+from images.rect import Rect
 from images.validators import validate_image_file_extension
 
 
@@ -41,6 +41,22 @@ class AbstractImage(models.Model):
         verbose_name=_('created at'),
         auto_now_add=True,
         db_index=True
+    )
+    focal_point_x = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+    focal_point_y = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+    focal_point_width = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+    focal_point_height = models.PositiveIntegerField(
+        null=True,
+        blank=True
     )
 
     class Meta:
@@ -87,12 +103,45 @@ class AbstractImage(models.Model):
             if close_file:
                 image_file.close()
 
+    def get_rect(self):
+        return Rect(0, 0, self.width, self.height)
+
+    def get_focal_point(self):
+        if self.focal_point_x is not None and self.focal_point_y is not None and \
+                self.focal_point_width is not None and self.focal_point_height is not None:
+            return Rect.from_point(
+                self.focal_point_x,
+                self.focal_point_y,
+                self.focal_point_width,
+                self.focal_point_height,
+            )
+
+    def has_focal_point(self):
+        return self.get_focal_point() is not None
+
+    def set_focal_point(self, rect):
+        if rect is not None:
+            self.focal_point_x = rect.centroid_x
+            self.focal_point_y = rect.centroid_y
+            self.focal_point_width = rect.width
+            self.focal_point_height = rect.height
+        else:
+            self.focal_point_x = None
+            self.focal_point_y = None
+            self.focal_point_width = None
+            self.focal_point_height = None
+
     def get_rendition(self, filter):
         if isinstance(filter, str):
             filter = Filter(spec=filter)
 
+        cache_key = filter.get_cache_key(self)
+
         try:
-            rendition = self.renditions.get(filter_spec=filter.spec)
+            rendition = self.renditions.get(
+                filter_spec=filter.spec,
+                focal_point_key=cache_key
+            )
         except ObjectDoesNotExist:
             # Generate the rendition image
             generated_image = filter.run(self, BytesIO())
@@ -116,6 +165,7 @@ class AbstractImage(models.Model):
 
             rendition, created = self.renditions.get_or_create(
                 filter_spec=filter.spec,
+                focal_point_key=cache_key,
                 defaults={'file': File(generated_image.f, name=output_filename)}
             )
 

@@ -130,6 +130,175 @@ class TestDoNothingOperation(ImageOperationTestCase):
 TestDoNothingOperation.setup_test_methods()
 
 
+class TestFillOperation(ImageOperationTestCase):
+    operation_class = image_operations.FillOperation
+
+    filter_spec_tests = [
+        ('fill-800x600', dict(width=800, height=600, crop_closeness=0)),
+        ('hello-800x600', dict(width=800, height=600, crop_closeness=0)),
+        ('fill-800x600-c0', dict(width=800, height=600, crop_closeness=0)),
+        ('fill-800x600-c100', dict(width=800, height=600, crop_closeness=1)),
+        ('fill-800x600-c50', dict(width=800, height=600, crop_closeness=0.5)),
+        ('fill-800x600-c1000', dict(width=800, height=600, crop_closeness=1)),
+        ('fill-800000x100', dict(width=800000, height=100, crop_closeness=0)),
+    ]
+
+    filter_spec_error_tests = [
+        'fill',
+        'fill-800',
+        'fill-abc',
+        'fill-800xabc',
+        'fill-800x600-',
+        'fill-800x600x10',
+        'fill-800x600-d100',
+    ]
+
+    run_tests = [
+        # Basic usage
+        ('fill-800x600', dict(width=1000, height=1000), [
+            ('crop', ((0, 125, 1000, 875), ), {}),
+            ('resize', ((800, 600), ), {}),
+        ]),
+
+        # Basic usage with an oddly-sized original image
+        # This checks for a rounding precision issue (#968)
+        ('fill-200x200', dict(width=539, height=720), [
+            ('crop', ((0, 90, 539, 630), ), {}),
+            ('resize', ((200, 200), ), {}),
+        ]),
+
+        # Closeness shouldn't have any effect when used without a focal point
+        ('fill-800x600-c100', dict(width=1000, height=1000), [
+            ('crop', ((0, 125, 1000, 875), ), {}),
+            ('resize', ((800, 600), ), {}),
+        ]),
+
+        # Should always crop towards focal point. Even if no closeness is set
+        ('fill-80x60', dict(
+            width=1000,
+            height=1000,
+            focal_point_x=1000,
+            focal_point_y=500,
+            focal_point_width=0,
+            focal_point_height=0,
+        ), [
+            # Crop the largest possible crop box towards the focal point
+            ('crop', ((0, 125, 1000, 875), ), {}),
+
+            # Resize it down to final size
+            ('resize', ((80, 60), ), {}),
+        ]),
+
+        # Should crop as close as possible without upscaling
+        ('fill-80x60-c100', dict(
+            width=1000,
+            height=1000,
+            focal_point_x=1000,
+            focal_point_y=500,
+            focal_point_width=0,
+            focal_point_height=0,
+        ), [
+            # Crop as close as possible to the focal point
+            ('crop', ((920, 470, 1000, 530), ), {}),
+
+            # No need to resize, crop should've created an 80x60 image
+        ]),
+
+        # Ditto with a wide image
+        # Using a different filter so method name doesn't clash
+        ('fill-100x60-c100', dict(
+            width=2000,
+            height=1000,
+            focal_point_x=2000,
+            focal_point_y=500,
+            focal_point_width=0,
+            focal_point_height=0,
+        ), [
+            # Crop to the right hand side
+            ('crop', ((1900, 470, 2000, 530), ), {}),
+        ]),
+
+        # Make sure that the crop box never enters the focal point
+        ('fill-50x50-c100', dict(
+            width=2000,
+            height=1000,
+            focal_point_x=1000,
+            focal_point_y=500,
+            focal_point_width=100,
+            focal_point_height=20,
+        ), [
+            # Crop a 100x100 box around the entire focal point
+            ('crop', ((950, 450, 1050, 550), ), {}),
+
+            # Resize it down to 50x50
+            ('resize', ((50, 50), ), {}),
+        ]),
+
+        # Test that the image is never upscaled
+        ('fill-1000x800', dict(width=100, height=100), [
+            ('crop', ((0, 10, 100, 90), ), {}),
+        ]),
+
+        # Test that the crop closeness gets capped to prevent upscaling
+        ('fill-1000x800-c100', dict(
+            width=1500,
+            height=1000,
+            focal_point_x=750,
+            focal_point_y=500,
+            focal_point_width=0,
+            focal_point_height=0,
+        ), [
+            # Crop a 1000x800 square out of the image as close to the
+            # focal point as possible. Will not zoom too far in to
+            # prevent upscaling
+            ('crop', ((250, 100, 1250, 900), ), {}),
+        ]),
+
+        # Test for an issue where a ZeroDivisionError would occur when the
+        # focal point size, image size and filter size match
+        # See: #797
+        ('fill-1500x1500-c100', dict(
+            width=1500,
+            height=1500,
+            focal_point_x=750,
+            focal_point_y=750,
+            focal_point_width=1500,
+            focal_point_height=1500,
+        ), [
+            # This operation could probably be optimised out
+            ('crop', ((0, 0, 1500, 1500), ), {}),
+        ]),
+
+
+        # A few tests for single pixel images
+
+        ('fill-100x100', dict(
+            width=1,
+            height=1,
+        ), [
+            ('crop', ((0, 0, 1, 1), ), {}),
+        ]),
+
+        # This one once gave a ZeroDivisionError
+        ('fill-100x150', dict(
+            width=1,
+            height=1,
+        ), [
+            ('crop', ((0, 0, 1, 1), ), {}),
+        ]),
+
+        ('fill-150x100', dict(
+            width=1,
+            height=1,
+        ), [
+            ('crop', ((0, 0, 1, 1), ), {}),
+        ]),
+    ]
+
+
+TestFillOperation.setup_test_methods()
+
+
 class TestMinMaxOperation(ImageOperationTestCase):
     operation_class = image_operations.MinMaxOperation
 

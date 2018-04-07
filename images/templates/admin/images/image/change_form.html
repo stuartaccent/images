@@ -1,0 +1,22 @@
+{% extends "admin/change_form.html" %}
+{% load l10n i18n images_tags %}
+
+{% block after_field_sets %}
+{% if original %}
+<div class="focal-point-container">
+    <h2 class="label">{% trans "Focal point (optional)" %}</h2>
+    <p>{% trans "To define this image's most important region, drag a box over the image below." %}</p>
+    <button class="button remove-focal-point" type="button">{% trans "Remove focal area" %}</button>
+    {% image original max-800x600 as rendition %}
+    <div class="focal-point-chooser"
+        style="max-width: {{ rendition.width }}px; max-height: {{ rendition.height }}px;"
+        data-focal-point-x="{{ original.focal_point_x }}"
+        data-focal-point-y="{{ original.focal_point_y }}"
+        data-focal-point-width="{{ original.focal_point_width }}"
+        data-focal-point-height="{{ original.focal_point_height }}">
+        <img {{ rendition.attrs }} data-original-width="{{ original.width|unlocalize }}" data-original-height="{{ original.height|unlocalize }}">
+        <div class="current-focal-point-indicator{% if not original.has_focal_point %} hidden{% endif %}"></div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

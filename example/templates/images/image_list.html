@@ -3,6 +3,8 @@
 {% for object in object_list %}
     <p>default rendering at original size</p>
     {% image object original %}
+    <p>or using a fill operation</p>
+    {% image object fill-500x300 %}
     <p>or custom with including `as varname`</p>
     {% image object original as orig %}
     <a href="{{ orig.url }}">{% image object thumbnail %}</a>

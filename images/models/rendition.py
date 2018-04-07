@@ -32,9 +32,18 @@ class AbstractRendition(models.Model):
         verbose_name=_('height'),
         editable=False
     )
+    focal_point_key = models.CharField(
+        max_length=16,
+        blank=True,
+        default='',
+        editable=False
+    )
 
     class Meta:
         abstract = True
+        unique_together = (
+            ('image', 'filter_spec', 'focal_point_key'),
+        )
 
     @property
     def url(self):

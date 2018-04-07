@@ -3,12 +3,20 @@ from django.db import models
 from django.test import override_settings
 
 from images.models import Image
+from images.rect import Rect
 from images.validators import validate_image_file_extension
 from tests.data import get_temporary_image
 from tests.test_case import AppTestCase
 
 
 class ModelTests(AppTestCase):
+
+    def setUp(self):
+        # Create an image for running tests on
+        self.image = Image.objects.create(
+            title="Test image",
+            file=get_temporary_image(size=(640, 480)),
+        )
 
     # fields
 
@@ -39,6 +47,73 @@ class ModelTests(AppTestCase):
         field = Image._meta.get_field('created_at')
         self.assertModelField(field, models.DateTimeField, blank=True)
         self.assertTrue(field.auto_now_add)
+
+    def test_focal_point_x(self):
+        field = Image._meta.get_field('focal_point_x')
+        self.assertModelField(field, models.PositiveIntegerField, True, True)
+
+    def test_focal_point_y(self):
+        field = Image._meta.get_field('focal_point_y')
+        self.assertModelField(field, models.PositiveIntegerField, True, True)
+
+    def test_focal_point_width(self):
+        field = Image._meta.get_field('focal_point_width')
+        self.assertModelField(field, models.PositiveIntegerField, True, True)
+
+    def test_focal_point_height(self):
+        field = Image._meta.get_field('focal_point_height')
+        self.assertModelField(field, models.PositiveIntegerField, True, True)
+
+    # properties
+
+    def test_get_rect(self):
+        self.assertTrue(self.image.get_rect(), Rect(0, 0, 640, 480))
+
+    def test_get_focal_point(self):
+        self.assertEqual(self.image.get_focal_point(), None)
+
+        # Add a focal point to the image
+        self.image.focal_point_x = 100
+        self.image.focal_point_y = 200
+        self.image.focal_point_width = 50
+        self.image.focal_point_height = 20
+
+        # Get it
+        self.assertEqual(self.image.get_focal_point(), Rect(75, 190, 125, 210))
+
+    def test_has_focal_point(self):
+        self.assertFalse(self.image.has_focal_point())
+
+        # Add a focal point to the image
+        self.image.focal_point_x = 100
+        self.image.focal_point_y = 200
+        self.image.focal_point_width = 50
+        self.image.focal_point_height = 20
+
+        self.assertTrue(self.image.has_focal_point())
+
+    def test_set_focal_point(self):
+        self.assertEqual(self.image.focal_point_x, None)
+        self.assertEqual(self.image.focal_point_y, None)
+        self.assertEqual(self.image.focal_point_width, None)
+        self.assertEqual(self.image.focal_point_height, None)
+
+        self.image.set_focal_point(Rect(100, 150, 200, 350))
+
+        self.assertEqual(self.image.focal_point_x, 150)
+        self.assertEqual(self.image.focal_point_y, 250)
+        self.assertEqual(self.image.focal_point_width, 100)
+        self.assertEqual(self.image.focal_point_height, 200)
+
+        self.image.set_focal_point(None)
+
+        self.assertEqual(self.image.focal_point_x, None)
+        self.assertEqual(self.image.focal_point_y, None)
+        self.assertEqual(self.image.focal_point_width, None)
+        self.assertEqual(self.image.focal_point_height, None)
+
+    def test_is_stored_locally(self):
+        self.assertTrue(self.image.is_stored_locally())
 
 
 class GetRenditionTests(AppTestCase):

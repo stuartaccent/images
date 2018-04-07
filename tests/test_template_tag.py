@@ -1,4 +1,5 @@
 from django import template
+from django.test import override_settings
 
 from images.models import Image
 from tests.data import get_temporary_image
@@ -47,6 +48,15 @@ class TestImageTag(AppTestCase):
         # Check that all the required HTML attributes are set
         self.assertTrue('width="400"' in result)
         self.assertTrue('height="200"' in result)
+        self.assertTrue('alt="Test image"' in result)
+
+    @override_settings(IMAGES_THUMBNAIL_FILTER_SPEC='width-100')
+    def test_image_tag_thumbnail(self):
+        result = self.render_image_tag(self.image, 'thumbnail')
+
+        # Check that all the required HTML attributes are set
+        self.assertTrue('width="100"' in result)
+        self.assertTrue('height="50"' in result)
         self.assertTrue('alt="Test image"' in result)
 
     def test_image_tag_none(self):

@@ -1,3 +1,5 @@
+import hashlib
+
 from django.utils.functional import cached_property
 
 from images import image_operations
@@ -77,6 +79,22 @@ class Filter:
             elif output_format == 'gif':
                 return willow.save_as_gif(output)
 
+    def get_cache_key(self, image):
+        vary_parts = []
+
+        for operation in self.operations:
+            for field in getattr(operation, 'vary_fields', []):
+                value = getattr(image, field, '')
+                vary_parts.append(str(value))
+
+        vary_string = '-'.join(vary_parts)
+
+        # Return blank string if there are no vary fields
+        if not vary_string:
+            return ''
+
+        return hashlib.sha1(vary_string.encode('utf-8')).hexdigest()[:8]
+
     _registered_operations = None
 
     @classmethod
@@ -90,6 +108,7 @@ class Filter:
             ('height', image_operations.WidthHeightOperation),
             ('min', image_operations.MinMaxOperation),
             ('max', image_operations.MinMaxOperation),
+            ('fill', image_operations.FillOperation),
             ('jpegquality', image_operations.JPEGQualityOperation),
             ('format', image_operations.FormatOperation),
         ]

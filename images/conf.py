@@ -15,7 +15,7 @@ SETTINGS_DEFAULTS = {
         '.png',
         '.gif'
     ],
-    'THUMBNAIL_FILTER_SPEC': 'width-150',
+    'THUMBNAIL_FILTER_SPEC': 'width-100',
 }
 
 
