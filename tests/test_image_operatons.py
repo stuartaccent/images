@@ -3,7 +3,7 @@ from io import BytesIO
 from django.test import TestCase, override_settings
 from mock import Mock, patch
 
-from images import image_operations
+from images import operations
 from images.exceptions import InvalidFilterSpecError
 from images.filter import Filter
 from images.models import Image
@@ -110,7 +110,7 @@ class ImageOperationTestCase(TestCase):
 
 
 class TestDoNothingOperation(ImageOperationTestCase):
-    operation_class = image_operations.DoNothingOperation
+    operation_class = operations.DoNothingOperation
 
     filter_spec_tests = [
         ('original', dict()),
@@ -131,7 +131,7 @@ TestDoNothingOperation.setup_test_methods()
 
 
 class TestFillOperation(ImageOperationTestCase):
-    operation_class = image_operations.FillOperation
+    operation_class = operations.FillOperation
 
     filter_spec_tests = [
         ('fill-800x600', dict(width=800, height=600, crop_closeness=0)),
@@ -300,7 +300,7 @@ TestFillOperation.setup_test_methods()
 
 
 class TestMinMaxOperation(ImageOperationTestCase):
-    operation_class = image_operations.MinMaxOperation
+    operation_class = operations.MinMaxOperation
 
     filter_spec_tests = [
         ('min-800x600', dict(method='min', width=800, height=600)),
@@ -333,7 +333,7 @@ TestMinMaxOperation.setup_test_methods()
 
 
 class TestWidthHeightOperation(ImageOperationTestCase):
-    operation_class = image_operations.WidthHeightOperation
+    operation_class = operations.WidthHeightOperation
 
     filter_spec_tests = [
         ('width-800', dict(method='width', size=800)),

@@ -2,7 +2,7 @@ import hashlib
 
 from django.utils.functional import cached_property
 
-from images import image_operations
+from images import operations as image_operations
 from images.conf import get_setting
 from images.exceptions import InvalidFilterSpecError
 
