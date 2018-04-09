@@ -3,6 +3,8 @@
 {% for object in object_list %}
     <p>default rendering at original size</p>
     {% image object original %}
+    <p>default rendering at original size with watermark</p>
+    {% image object width-800 watermark-50x50 %}
     <p>or using a fill operation</p>
     {% image object fill-500x300 %}
     <p>or custom with including `as varname`</p>

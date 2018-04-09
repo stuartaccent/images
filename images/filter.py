@@ -111,6 +111,7 @@ class Filter:
             ('fill', image_operations.FillOperation),
             ('jpegquality', image_operations.JPEGQualityOperation),
             ('format', image_operations.FormatOperation),
+            ('watermark', image_operations.WatermarkOperation),
         ]
 
         cls._registered_operations = dict(operations)

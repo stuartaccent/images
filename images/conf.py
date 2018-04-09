@@ -1,3 +1,5 @@
+from os.path import abspath, dirname
+
 from django.conf import settings
 
 
@@ -16,6 +18,8 @@ SETTINGS_DEFAULTS = {
         '.gif'
     ],
     'THUMBNAIL_FILTER_SPEC': 'width-100',
+    'WATERMARK_IMAGE_PATH': dirname(abspath(__file__)) + '/static/images/images/watermark.png',
+    'WATERMARK_IMAGE_OPACITY': .5
 }
 
 
