@@ -6,3 +6,4 @@ flake8
 mock
 psycopg2
 pyyaml
+git+https://github.com/stuartaccent/Willow.git@master#egg=Willow
