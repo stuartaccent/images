@@ -8,7 +8,7 @@ from images import __version__
 
 
 install_requires = [
-    'Django>=2,<2.1',
+    'Django>=2,<2.2',
     'Pillow>=5,<6',
     'Willow>=1,<2'
 ]
