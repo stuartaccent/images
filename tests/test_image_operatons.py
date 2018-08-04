@@ -414,7 +414,7 @@ class TestJPEGQualityFilter(TestCase):
         with patch('PIL.Image.Image.save') as save:
             fil.run(image, f)
 
-        save.assert_called_with(f, 'JPEG', quality=85, optimize=True, progressive=True)
+        save.assert_called_with(f, 'JPEG', icc_profile=None, quality=85, optimize=True, progressive=True)
 
     def test_jpeg_quality_filter(self):
         fil = Filter(spec='width-400|jpegquality-40')
@@ -427,7 +427,7 @@ class TestJPEGQualityFilter(TestCase):
         with patch('PIL.Image.Image.save') as save:
             fil.run(image, f)
 
-        save.assert_called_with(f, 'JPEG', quality=40, optimize=True, progressive=True)
+        save.assert_called_with(f, 'JPEG', icc_profile=None, quality=40, optimize=True, progressive=True)
 
     def test_jpeg_quality_filter_invalid(self):
         fil = Filter(spec='width-400|jpegquality-abc')
@@ -465,7 +465,7 @@ class TestJPEGQualityFilter(TestCase):
         with patch('PIL.Image.Image.save') as save:
             fil.run(image, f)
 
-        save.assert_called_with(f, 'JPEG', quality=50, optimize=True, progressive=True)
+        save.assert_called_with(f, 'JPEG', icc_profile=None, quality=50, optimize=True, progressive=True)
 
     @override_settings(IMAGES_JPG_QUALITY=50)
     def test_jpeg_quality_filter_overrides_setting(self):
@@ -479,4 +479,4 @@ class TestJPEGQualityFilter(TestCase):
         with patch('PIL.Image.Image.save') as save:
             fil.run(image, f)
 
-        save.assert_called_with(f, 'JPEG', quality=40, optimize=True, progressive=True)
+        save.assert_called_with(f, 'JPEG', icc_profile=None, quality=40, optimize=True, progressive=True)
