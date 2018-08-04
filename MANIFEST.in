@@ -1,2 +1,2 @@
 include LICENSE
-recursive-include images *.py *.html *.js
+recursive-include images *.py *.html *.js *.css *.gif
