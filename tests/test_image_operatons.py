@@ -404,7 +404,7 @@ class TestFormatFilter(TestCase):
 
 class TestJPEGQualityFilter(TestCase):
     def test_default_quality(self):
-        fil = Filter(spec='width-400')
+        fil = Filter(spec='width-400|format-jpeg')
         image = Image.objects.create(
             title="Test image",
             file=get_temporary_image(),
@@ -417,7 +417,7 @@ class TestJPEGQualityFilter(TestCase):
         save.assert_called_with(f, 'JPEG', icc_profile=None, quality=85, optimize=True, progressive=True)
 
     def test_jpeg_quality_filter(self):
-        fil = Filter(spec='width-400|jpegquality-40')
+        fil = Filter(spec='width-400|format-jpeg|jpegquality-40')
         image = Image.objects.create(
             title="Test image",
             file=get_temporary_image(),
@@ -430,7 +430,7 @@ class TestJPEGQualityFilter(TestCase):
         save.assert_called_with(f, 'JPEG', icc_profile=None, quality=40, optimize=True, progressive=True)
 
     def test_jpeg_quality_filter_invalid(self):
-        fil = Filter(spec='width-400|jpegquality-abc')
+        fil = Filter(spec='width-400|format-jpeg|jpegquality-abc')
         image = Image.objects.create(
             title="Test image",
             file=get_temporary_image(),
@@ -438,7 +438,7 @@ class TestJPEGQualityFilter(TestCase):
         self.assertRaises(InvalidFilterSpecError, fil.run, image, BytesIO())
 
     def test_jpeg_quality_filter_no_value(self):
-        fil = Filter(spec='width-400|jpegquality')
+        fil = Filter(spec='width-400|format-jpeg|jpegquality')
         image = Image.objects.create(
             title="Test image",
             file=get_temporary_image(),
@@ -446,7 +446,7 @@ class TestJPEGQualityFilter(TestCase):
         self.assertRaises(InvalidFilterSpecError, fil.run, image, BytesIO())
 
     def test_jpeg_quality_filter_too_big(self):
-        fil = Filter(spec='width-400|jpegquality-101')
+        fil = Filter(spec='width-400|format-jpeg|jpegquality-101')
         image = Image.objects.create(
             title="Test image",
             file=get_temporary_image(),
@@ -455,7 +455,7 @@ class TestJPEGQualityFilter(TestCase):
 
     @override_settings(IMAGES_JPG_QUALITY=50)
     def test_jpeg_quality_setting(self):
-        fil = Filter(spec='width-400')
+        fil = Filter(spec='width-400|format-jpeg')
         image = Image.objects.create(
             title="Test image",
             file=get_temporary_image(),
@@ -469,7 +469,7 @@ class TestJPEGQualityFilter(TestCase):
 
     @override_settings(IMAGES_JPG_QUALITY=50)
     def test_jpeg_quality_filter_overrides_setting(self):
-        fil = Filter(spec='width-400|jpegquality-40')
+        fil = Filter(spec='width-400|format-jpeg|jpegquality-40')
         image = Image.objects.create(
             title="Test image",
             file=get_temporary_image(),
@@ -480,3 +480,44 @@ class TestJPEGQualityFilter(TestCase):
             fil.run(image, f)
 
         save.assert_called_with(f, 'JPEG', icc_profile=None, quality=40, optimize=True, progressive=True)
+
+
+class TestBackgroundColorFilter(TestCase):
+    def test_original_has_alpha(self):
+        # Checks that the test image we're using has alpha
+        fil = Filter(spec='width-400')
+        image = Image.objects.create(
+            title="Test image",
+            file=get_temporary_image(),
+        )
+        out = fil.run(image, BytesIO())
+
+        self.assertTrue(out.has_alpha())
+
+    def test_3_digit_hex(self):
+        fil = Filter(spec='width-400|bgcolor-fff')
+        image = Image.objects.create(
+            title="Test image",
+            file=get_temporary_image(),
+        )
+        out = fil.run(image, BytesIO())
+
+        self.assertFalse(out.has_alpha())
+
+    def test_6_digit_hex(self):
+        fil = Filter(spec='width-400|bgcolor-ffffff')
+        image = Image.objects.create(
+            title="Test image",
+            file=get_temporary_image(),
+        )
+        out = fil.run(image, BytesIO())
+
+        self.assertFalse(out.has_alpha())
+
+    def test_invalid(self):
+        fil = Filter(spec='width-400|bgcolor-foo')
+        image = Image.objects.create(
+            title="Test image",
+            file=get_temporary_image(),
+        )
+        self.assertRaises(ValueError, fil.run, image, BytesIO())

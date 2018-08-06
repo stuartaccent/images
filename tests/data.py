@@ -1,15 +1,13 @@
 from io import BytesIO
 
-from django.core.files.uploadedfile import InMemoryUploadedFile
+import PIL.Image
+from django.core.files.images import ImageFile
 
-from PIL import Image
+from images.models import Image
 
 
-def get_temporary_image(size=(400, 200)):
-    io = BytesIO()
-    color = (255, 0, 0)
-    image = Image.new("RGB", size, color)
-    image.save(io, format='JPEG')
-    image_file = InMemoryUploadedFile(io, None, 'image.jpg', 'jpeg', len(io.getvalue()), None)
-    image_file.seek(0)
-    return image_file
+def get_temporary_image(filename='image.png', colour='white', size=(400, 200)):
+    f = BytesIO()
+    image = PIL.Image.new('RGBA', size, colour)
+    image.save(f, 'PNG')
+    return ImageFile(f, name=filename)
