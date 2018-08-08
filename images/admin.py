@@ -11,29 +11,10 @@ class ImageAdmin(admin.ModelAdmin):
     form = ImageForm
     readonly_fields = ['width', 'height']
 
-    class Media:
-        js = (
-            '//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js',
-            'images/js/jquery.ba-throttle-debounce.min.js',
-            'images/js/Jcrop.min.js',
-            'images/js/auto-title.js',
-            'images/js/focal-point-chooser.js'
-        )
-        css = {
-            'all': (
-                'images/css/Jcrop.min.css',
-                'images/css/focal-point-chooser.css'
-            )
-        }
-
     def preview(self, obj):
         orig = get_rendition_or_not_found(obj, 'original')
         thumb = get_rendition_or_not_found(obj, 'thumbnail')
-
-        html = """
-        <a href="{}"><img src="{}" alt="{}"></a>
-        """.format(orig.url, thumb.url, thumb.alt)
-
+        html = '<a href="{}"><img src="{}" alt="{}"></a>'.format(orig.url, thumb.url, thumb.alt)
         return mark_safe(html)
 
 

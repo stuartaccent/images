@@ -2,6 +2,7 @@ from django import forms
 
 
 class ImageForm(forms.ModelForm):
+
     class Meta:
         fields = [
             'title',
@@ -17,3 +18,18 @@ class ImageForm(forms.ModelForm):
             'focal_point_width': forms.HiddenInput,
             'focal_point_height': forms.HiddenInput
         }
+
+    class Media:
+        css = {
+            'all': (
+                'images/css/Jcrop.min.css',
+                'images/css/focal-point-chooser.css'
+            )
+        }
+        js = (
+            '//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js',
+            'images/js/jquery.ba-throttle-debounce.min.js',
+            'images/js/Jcrop.min.js',
+            'images/js/auto-title.js',
+            'images/js/focal-point-chooser.js',
+        )
