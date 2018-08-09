@@ -367,10 +367,14 @@ class TestCropOperation(ImageOperationTestCase):
 
     filter_spec_tests = [
         ('crop', dict()),
+        ('crop-500x400x100x200', dict(left=500, top=400, width=100, height=200)),
     ]
 
     filter_spec_error_tests = [
-        'crop-noparams'
+        'crop-randomstring',
+        'crop-100',
+        'crop-100x100',
+        'crop-100x100x100'
     ]
 
     run_tests = [
@@ -391,6 +395,53 @@ class TestCropOperation(ImageOperationTestCase):
             width=1000,
             height=1000,
         ), []),
+
+        # crop to center small size
+        ('crop-500x500x100x100', dict(
+            width=1000,
+            height=1000,
+        ), [
+            ('crop', ((450, 450, 550, 550), ), {}),
+        ]),
+
+        # crop to center full size
+        ('crop-500x500x1000x1000', dict(
+            width=1000,
+            height=1000,
+        ), [
+            ('crop', ((0, 0, 1000, 1000), ), {}),
+        ]),
+
+        # width greater than image keeps to image bounds
+        ('crop-500x500x10000x1000', dict(
+            width=1000,
+            height=1000,
+        ), [
+            ('crop', ((0, 0, 1000, 1000), ), {}),
+        ]),
+
+        # height greater than image keeps to image bounds
+        ('crop-500x500x1000x10000', dict(
+            width=1000,
+            height=1000,
+        ), [
+            ('crop', ((0, 0, 1000, 1000), ), {}),
+        ]),
+
+        # near edge allows only upto remaining image size
+        ('crop-900x900x500x500', dict(
+            width=1000,
+            height=1000,
+        ), [
+            ('crop', ((800, 800, 1000, 1000), ), {}),
+        ]),
+
+        ('crop-100x100x500x500', dict(
+            width=1000,
+            height=1000,
+        ), [
+             ('crop', ((0, 0, 200, 200),), {}),
+        ]),
     ]
 
 

@@ -9,7 +9,9 @@
     {% image object format-jpeg jpegquality-85 %}
     <p>bgcolor</p>
     {% image object bgcolor-ff0000 %}
-    <p>crop (defaults to focol points)</p>
+    <p>crop</p>
+    {% image object crop-250x250x250x250 %}
+    <p>crop (no params defaults to focol points)</p>
     {% image object crop %}
     <p>or custom with including `as varname`</p>
     {% image object original as orig %}

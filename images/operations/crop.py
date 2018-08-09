@@ -4,11 +4,33 @@ from .base import Operation
 
 class CropOperation(Operation):
 
-    def construct(self):
-        pass
+    def construct(self, size=None):
+        if size:
+            left_str, top_str, width_str, height_str = size.split('x')
+            self.left = int(left_str)
+            self.top = int(top_str)
+            self.width = int(width_str)
+            self.height = int(height_str)
 
     def run(self, willow, image, env):
+        image_width, image_height = willow.get_size()
         focal_point = image.get_focal_point()
-        if focal_point:
+
+        if hasattr(self, 'left'):
+            crop_x = min(self.left, image_width - 1)
+            crop_y = min(self.top, image_height - 1)
+
+            remaining_after_x = image_width - crop_x
+            remaining_after_y = image_height - crop_y
+
+            max_crop_width = min(self.width, crop_x * 2, remaining_after_x * 2)
+            max_crop_height = min(self.height, crop_y * 2, remaining_after_y * 2)
+
+            rect = Rect.from_point(crop_x, crop_y, max_crop_width, max_crop_height)
+
+            willow = willow.crop(rect)
+
+        elif focal_point:
             willow = willow.crop(focal_point)
+
         return willow
