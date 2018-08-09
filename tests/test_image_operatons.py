@@ -362,6 +362,41 @@ class TestWidthHeightOperation(ImageOperationTestCase):
 TestWidthHeightOperation.setup_test_methods()
 
 
+class TestCropOperation(ImageOperationTestCase):
+    operation_class = operations.CropOperation
+
+    filter_spec_tests = [
+        ('crop', dict()),
+    ]
+
+    filter_spec_error_tests = [
+        'crop-noparams'
+    ]
+
+    run_tests = [
+        # Should crop to focol points
+        ('crop', dict(
+            width=1000,
+            height=1000,
+            focal_point_x=500,
+            focal_point_y=500,
+            focal_point_width=500,
+            focal_point_height=500,
+        ), [
+            ('crop', ((250, 250, 750, 750), ), {}),
+        ]),
+
+        # Should not crop if no focol points set
+        ('crop', dict(
+            width=1000,
+            height=1000,
+        ), []),
+    ]
+
+
+TestCropOperation.setup_test_methods()
+
+
 class TestFormatFilter(TestCase):
     def test_jpeg(self):
         fil = Filter(spec='width-400|format-jpeg')

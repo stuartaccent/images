@@ -112,6 +112,7 @@ class Filter:
             ('jpegquality', image_operations.JPEGQualityOperation),
             ('format', image_operations.FormatOperation),
             ('bgcolor', image_operations.BackgroundColorOperation),
+            ('crop', image_operations.CropOperation),
         ]
 
         cls._registered_operations = dict(operations)

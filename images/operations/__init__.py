@@ -1,4 +1,5 @@
 from .background_color import BackgroundColorOperation
+from .crop import CropOperation
 from .do_nothing import DoNothingOperation
 from .fill import FillOperation
 from .format import FormatOperation
